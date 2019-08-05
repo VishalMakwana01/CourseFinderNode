@@ -9,7 +9,7 @@ router.use(bodyParser.json())
 //router.use(bodyParser.urlencoded({ extended: true }))
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
+router.post('/', function (req, res, next) {
     var sql = "SELECT * FROM courses";
     db.query(sql, function (err, rows, fields) {
         if (err) {
