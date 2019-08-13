@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser')
 var db = require('../db')
-
+const jwt = require('jsonwebtoken')
 
 
 router.use(bodyParser.json())
@@ -15,7 +15,7 @@ router.post('/', function (req, res, next) {
     db.query('SELECT * FROM teacher WHERE email = ?', [email], function (error, results, fields) {
         if (error) {
             // console.log("error ocurred",error);
-            res.send({
+            res.json({
                 "code": 400,
                 "failed": "error ocurred"
             })
@@ -23,25 +23,38 @@ router.post('/', function (req, res, next) {
             // console.log('The solution is: ', results);
             if (results.length > 0) {
                 if (results[0].password == password) {
-                    res.send({
-                        "code": 200,
-                        "success": "Login Sucessfull",
+                    const user = {
                         "name": results[0].Name,
                         "email": results[0].email,
                         "institute": results[0].institute,
                         "department": results[0].department,
                         "created At": results[0].created_at
-                    });
+                    }
+                    jwt.sign({ user }, 'pubgmobile', (err, token) => {
+                        res.json({
+                            "code": 200,
+                            "success": "Login Successfull",
+                            data: {
+                                "name": results[0].Name,
+                                "email": results[0].email,
+                                "institute": results[0].institute,
+                                "department": results[0].department,
+                                "created At": results[0].created_at
+                            },
+                            token
+                        });
+                    })
+
                 }
                 else {
-                    res.send({
+                    res.json({
                         "code": 204,
                         "success": "Email and password does not match"
                     });
                 }
             }
             else {
-                res.send({
+                res.json({
                     "code": 204,
                     "success": "Email does not exits"
                 });
