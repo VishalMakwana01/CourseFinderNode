@@ -9,33 +9,60 @@ router.use(bodyParser.json())
 //router.use(bodyParser.urlencoded({ extended: true }))
 
 /* GET users listing. */
-router.post('/', verifyToken, function (req, res, next) {
-    jwt.verify(req.token, "pubgmobile", (err, authData) => {
+router.post('/', function (req, res, next) {
+
+    var sql = "SELECT * FROM courses";
+    db.query(sql, function (err, rows, fields) {
         if (err) {
-            res.sendStatus(403)
+            res.status(500).send({ error: 'Something failed!' })
         }
-        else {
-            var sql = "SELECT * FROM courses";
-            db.query(sql, function (err, rows, fields) {
-                if (err) {
-                    res.status(500).send({ error: 'Something failed!' })
-                }
-                res.json({ rows, authData })
+        res.json({ rows })
+    })
+}
+)
+router.post('/enroll/', function (req, res, next) {
+    console.log("In enroll")
+    var sql = "Insert into enrolled Set ?"
+    console.log(req.body.course_id)
+    var enroll = {
+        "Course_id": req.body.course_id,
+        "Student_id": req.body.student_id
+    }
+    db.query(sql, enroll, function (error, results) {
+        if (error) {
+            console.log(error)
+            res.json({
+                "code": 400,
+                "failed": "error occured"
+            })
+        } else {
+            res.json({
+                "code": "200",
+                "message": "Success"
             })
         }
     })
+})
 
-});
-function verifyToken(req, res, next) {
-    const bearHeader = req.headers['authorization']
-    if (typeof bearHeader != "undefined") {
-        const bear = bearHeader.split(" ")
-        const bearToken = bear[1]
-        req.token = bearToken
-        next()
-    }
-    else {
-        res.sendStatus(403)
-    }
-}
+router.post('/my_enrollment/', function (req, res, next) {
+    console.log("In enroll")
+    db.query("Select Course_id from enrolled where Student_id=?", req.body.student_id, function (error, results) {
+        if (error) {
+            console.log(error)
+            res.json({
+                "code": 400,
+                "failed": "error occured"
+            })
+        } else {
+            if (results.length === 0) {
+                res.json({
+                    "message": "No enrollments"
+                })
+            }
+            else {
+                res.json(results)
+            }
+        }
+    })
+})
 module.exports = router;
