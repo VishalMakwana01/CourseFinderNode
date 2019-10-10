@@ -26,7 +26,9 @@ router.post('/enroll/', function (req, res, next) {
     console.log(req.body.course_id)
     var enroll = {
         "Course_id": req.body.course_id,
-        "Student_id": req.body.student_id
+        "Student_id": req.body.student_id,
+        "Start_date": req.body.start_date,
+        "End_date": req.body.end_date
     }
     db.query(sql, enroll, function (error, results) {
         if (error) {
@@ -46,7 +48,7 @@ router.post('/enroll/', function (req, res, next) {
 
 router.post('/my_enrollment/', function (req, res, next) {
     console.log("In enroll")
-    db.query("Select Course_id from enrolled where Student_id=?", req.body.student_id, function (error, results) {
+    db.query("Select Course_id,Start_date,End_date from enrolled where Student_id=?", req.body.student_id, function (error, results) {
         if (error) {
             console.log(error)
             res.json({
