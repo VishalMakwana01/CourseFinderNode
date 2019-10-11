@@ -12,7 +12,14 @@ router.use(bodyParser.json())
 router.post('/', function (req, res, next) {
     var email = req.body.email;
     var password = req.body.password;
-    db.query('SELECT * FROM teacher WHERE email = ?', [email], function (error, results, fields) {
+    var sql;
+    if (req.body.type == "student") {
+        sql = "Select * from student where email =?"
+    }
+    else {
+        sql = "Select * from teacher where email = ?"
+    }
+    db.query(sql, [email], function (error, results, fields) {
         if (error) {
             // console.log("error ocurred",error);
             res.json({

@@ -22,14 +22,26 @@ router.post('/', function (req, res, next) {
 )
 router.post('/enroll/', function (req, res, next) {
     console.log("In enroll")
-    var sql = "Insert into enrolled Set ?"
-    console.log(req.body.course_id)
-    var enroll = {
-        "Course_id": req.body.course_id,
-        "Student_id": req.body.student_id,
-        "Start_date": req.body.start_date,
-        "End_date": req.body.end_date
+    var sql;
+    var enroll;
+    if (req.body.type == "bookmark") {
+        sql = "Insert into bookmark Set ?"
+        enroll = {
+            "Course_id": req.body.course_id,
+            "Student_id": req.body.student_id,
+        }
     }
+    else {
+        sql = "Insert into enrolled set ?"
+        enroll = {
+            "Course_id": req.body.course_id,
+            "Student_id": req.body.student_id,
+            "Start_date": req.body.start_date,
+            "End_date": req.body.end_date
+        }
+    }
+    console.log(req.body.course_id)
+
     db.query(sql, enroll, function (error, results) {
         if (error) {
             console.log(error)
@@ -46,9 +58,17 @@ router.post('/enroll/', function (req, res, next) {
     })
 })
 
+
 router.post('/my_enrollment/', function (req, res, next) {
     console.log("In enroll")
-    db.query("Select Course_id,Start_date,End_date from enrolled where Student_id=?", req.body.student_id, function (error, results) {
+    var sql;
+    if (req.body.type == "bookmark") {
+        sql = "Select  * from courses as c,bookmark as b where c.Course_id=b.Course_id and Student_id=?"
+    }
+    else {
+        sql = "Select  * from courses as c,enrolled as b where c.Course_id=b.Course_id and Student_id=?"
+    }
+    db.query(sql, req.body.student_id, function (error, results) {
         if (error) {
             console.log(error)
             res.json({
